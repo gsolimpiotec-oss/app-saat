@@ -25,7 +25,25 @@ export default function DetalhesAlunoTutorPage({ params }: { params: { id: strin
         setAluno(a);
         
         const { data: n } = await supabase.from("notas").select("*").eq("aluno_id", a.id);
-        if (n) setNotas(n);
+        if (n) {
+          const mapa = new Map();
+          n.forEach((item: any) => {
+            const key = item.materia.trim().toLowerCase();
+            const existing = mapa.get(key);
+            if (!existing) {
+              mapa.set(key, item);
+            } else {
+              mapa.set(key, {
+                ...existing,
+                b1: item.b1 !== null ? item.b1 : existing.b1,
+                b2: item.b2 !== null ? item.b2 : existing.b2,
+                b3: item.b3 !== null ? item.b3 : existing.b3,
+                b4: item.b4 !== null ? item.b4 : existing.b4,
+              });
+            }
+          });
+          setNotas(Array.from(mapa.values()));
+        }
         
         const { data: f } = await supabase.from("faltas").select("*").eq("aluno_id", a.id).order("data", { ascending: false });
         if (f) setFaltas(f);
