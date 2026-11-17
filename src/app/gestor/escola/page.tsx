@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Loader2, CheckCircle, SlidersHorizontal, ChevronRight } from "lucide-react";
+import { GestorBottomNav } from "@/components/GestorBottomNav";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 
@@ -224,6 +225,7 @@ export default function EscolaCadastroPage() {
           {salvo ? <><CheckCircle size={20}/> Salvo no Servidor!</> : "Salvar Configurações"}
         </button>
       </form>
+      <GestorBottomNav />
     </div>
   );
 }

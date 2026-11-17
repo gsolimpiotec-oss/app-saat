@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Users, School, User, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { GestorBottomNav } from "@/components/GestorBottomNav";
 import { createClient } from "@/lib/supabase/client";
 
 export default function PerfilGestorPage() {
@@ -59,30 +60,7 @@ export default function PerfilGestorPage() {
         </button>
       </div>
 
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-slate-100 z-50">
-        <div className="flex">
-          <Link href="/gestor/relatorios" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs text-slate-400">
-            <LayoutDashboard size={20} />
-            <span className="font-medium">Relatórios</span>
-          </Link>
-          <Link href="/gestor/alunos" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs text-slate-400">
-            <Users size={20} />
-            <span className="font-medium">Alunos</span>
-          </Link>
-          <Link href="/gestor/escola" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs text-slate-400">
-            <School size={20} />
-            <span className="font-medium">Escola</span>
-          </Link>
-          <Link href="/gestor/perfil" className="flex-1 flex flex-col items-center gap-1 py-3 text-xs text-purple-600">
-            <User size={20} />
-            <span className="font-medium">Perfil</span>
-          </Link>
-          <button onClick={handleLogout} className="flex-1 flex flex-col items-center gap-1 py-3 text-xs text-red-400 hover:text-red-600 hover:bg-red-50 transition">
-            <LogOut size={20} />
-            <span className="font-medium">Sair</span>
-          </button>
-        </div>
-      </nav>
+      <GestorBottomNav />
     </div>
   );
 }

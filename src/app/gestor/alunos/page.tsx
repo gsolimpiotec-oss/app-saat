@@ -1,6 +1,7 @@
 ﻿"use client";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { GestorBottomNav } from "@/components/GestorBottomNav";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -31,24 +32,30 @@ function AlunoCard({ aluno }: { aluno: any }) {
   const cfg = getRiscoConfig(mediaTotal, faltasTotal);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3">
+    <Link 
+      href={`/gestor/aluno/${aluno.id}`}
+      className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 hover:border-purple-300 hover:shadow-md transition active:scale-[0.99] block"
+    >
       <div className="w-11 h-11 rounded-full bg-purple-100 flex items-center justify-center font-bold text-purple-700 flex-shrink-0 text-lg">
         {aluno.profiles?.nome?.charAt(0) || "A"}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-slate-800 truncate">{aluno.profiles?.nome}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-sm font-bold text-slate-800 truncate">{aluno.profiles?.nome}</p>
+          <span className="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded font-semibold">Ver notas &gt;</span>
+        </div>
         <p className="text-xs text-slate-400">{aluno.turma} • RA: {aluno.ra}</p>
-        <div className="flex gap-3 mt-1 text-[10px] text-slate-500">
-          <span>Faltas: <b>{faltasTotal}</b></span>
-          <span>Média: <b>{qtd > 0 ? mediaTotal.toFixed(1) : "-"}</b></span>
-          <span>{aluno.trabalha ? "Trabalha" : "Só estuda"}</span>
+        <div className="flex gap-3 mt-1.5 text-[10px] text-slate-500">
+          <span>Faltas: <b className="text-red-600">{faltasTotal}</b></span>
+          <span>Média: <b className="text-blue-600">{qtd > 0 ? mediaTotal.toFixed(1) : "-"}</b></span>
+          <span>{aluno.trabalha ? "💼 Trabalha" : "Só estuda"}</span>
         </div>
       </div>
       <span className="text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0"
         style={{ backgroundColor: cfg.bg, color: cfg.color }}>
         {cfg.emoji}
       </span>
-    </div>
+    </Link>
   );
 }
 
@@ -167,6 +174,7 @@ export default function GestorAlunosPage() {
           alunosFiltrados.map(a => <AlunoCard key={a.id} aluno={a} />)
         )}
       </div>
+      <GestorBottomNav />
     </div>
   );
 }
