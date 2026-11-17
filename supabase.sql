@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.alunos (
   faltas_total INT DEFAULT 0,
   atividades_pendentes INT DEFAULT 0,
   media DECIMAL DEFAULT 0.0,
+  tutor_status TEXT DEFAULT 'pendente',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
