@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionGuard } from "@/components/SessionGuard";
 import { PwaRegister } from "@/components/PwaRegister";
+import { InstallBanner } from "@/components/InstallBanner";
 
 const InterSans = Inter({
   variable: "--font-Inter-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full bg-slate-200 md:bg-slate-200">
         <SessionGuard />
         <PwaRegister />
+        <InstallBanner />
         {children}
       </body>
     </html>
