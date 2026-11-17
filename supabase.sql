@@ -1,9 +1,9 @@
--- =======================================================
--- SAAT - Script de Criação do Banco de Dados (Supabase)
+﻿-- =======================================================
+-- SAAT - Script Completo de Criação do Banco de Dados
 -- =======================================================
 
 -- 1. Tabela de Escolas
-CREATE TABLE public.escolas (
+CREATE TABLE IF NOT EXISTS public.escolas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nome TEXT NOT NULL,
   endereco TEXT,
@@ -15,8 +15,8 @@ CREATE TABLE public.escolas (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 2. Tabela de Perfis (Vinculada ao Supabase Auth)
-CREATE TABLE public.profiles (
+-- 2. Tabela de Perfis
+CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role TEXT CHECK (role IN ('aluno','tutor','gestor')) DEFAULT 'aluno',
   nome TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE public.profiles (
 );
 
 -- 3. Tabela de Alunos
-CREATE TABLE public.alunos (
+CREATE TABLE IF NOT EXISTS public.alunos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
   escola_id UUID REFERENCES public.escolas(id),
@@ -45,7 +45,7 @@ CREATE TABLE public.alunos (
 );
 
 -- 4. Tabela de Faltas
-CREATE TABLE public.faltas (
+CREATE TABLE IF NOT EXISTS public.faltas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   aluno_id UUID REFERENCES public.alunos(id) ON DELETE CASCADE,
   materia TEXT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE public.faltas (
 );
 
 -- 5. Tabela de Atividades
-CREATE TABLE public.atividades (
+CREATE TABLE IF NOT EXISTS public.atividades (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   aluno_id UUID REFERENCES public.alunos(id) ON DELETE CASCADE,
   materia TEXT NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE public.atividades (
 );
 
 -- 6. Tabela de Presenças (Geolocalização)
-CREATE TABLE public.presencas (
+CREATE TABLE IF NOT EXISTS public.presencas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   aluno_id UUID REFERENCES public.alunos(id) ON DELETE CASCADE,
   escola_id UUID REFERENCES public.escolas(id),
@@ -81,8 +81,20 @@ CREATE TABLE public.presencas (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 7. Tabela de Mensagens (Chat Tutor x Aluno)
-CREATE TABLE public.mensagens (
+-- 7. Tabela de Notas
+CREATE TABLE IF NOT EXISTS public.notas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  aluno_id UUID REFERENCES public.alunos(id) ON DELETE CASCADE,
+  materia TEXT NOT NULL,
+  b1 DECIMAL,
+  b2 DECIMAL,
+  b3 DECIMAL,
+  b4 DECIMAL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- 8. Tabela de Mensagens (Chat Tutor x Aluno)
+CREATE TABLE IF NOT EXISTS public.mensagens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   remetente_id UUID REFERENCES public.profiles(id),
   destinatario_id UUID REFERENCES public.profiles(id),
@@ -101,23 +113,33 @@ ALTER TABLE public.alunos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.faltas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.atividades ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.presencas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mensagens ENABLE ROW LEVEL SECURITY;
 
--- Políticas de acesso básicas (Permitir tudo para testes iniciais)
--- NOTA: Em produção, você deve restringir isso!
-CREATE POLICY "Permitir leitura pública" ON public.escolas FOR SELECT USING (true);
-CREATE POLICY "Permitir leitura para todos" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Permitir update no próprio perfil" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- Políticas de Acesso Abertas para Funcionamento Total do TCC
+DROP POLICY IF EXISTS "Acesso total escolas" ON public.escolas;
+CREATE POLICY "Acesso total escolas" ON public.escolas FOR ALL USING (true) WITH CHECK (true);
 
--- Políticas para alunos (Pode ver seus próprios dados)
-CREATE POLICY "Aluno pode ver seus dados" ON public.alunos FOR SELECT USING (true);
-CREATE POLICY "Permitir insert para autenticados" ON public.alunos FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Acesso total profiles" ON public.profiles;
+CREATE POLICY "Acesso total profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
 
-CREATE POLICY "Leitura geral" ON public.faltas FOR SELECT USING (true);
-CREATE POLICY "Leitura geral" ON public.atividades FOR SELECT USING (true);
-CREATE POLICY "Leitura geral" ON public.presencas FOR SELECT USING (true);
-CREATE POLICY "Leitura geral" ON public.mensagens FOR SELECT USING (true);
-CREATE POLICY "Permitir envio de msg" ON public.mensagens FOR INSERT WITH CHECK (auth.uid() = remetente_id);
+DROP POLICY IF EXISTS "Acesso total alunos" ON public.alunos;
+CREATE POLICY "Acesso total alunos" ON public.alunos FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Acesso total faltas" ON public.faltas;
+CREATE POLICY "Acesso total faltas" ON public.faltas FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Acesso total atividades" ON public.atividades;
+CREATE POLICY "Acesso total atividades" ON public.atividades FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Acesso total presencas" ON public.presencas;
+CREATE POLICY "Acesso total presencas" ON public.presencas FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Acesso total notas" ON public.notas;
+CREATE POLICY "Acesso total notas" ON public.notas FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Acesso total mensagens" ON public.mensagens;
+CREATE POLICY "Acesso total mensagens" ON public.mensagens FOR ALL USING (true) WITH CHECK (true);
 
 -- =======================================================
 -- Trigger para criar perfil automaticamente no cadastro
@@ -126,25 +148,27 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, nome, role)
-  VALUES (new.id, new.raw_user_meta_data->>'nome', 'aluno');
+  VALUES (new.id, COALESCE(new.raw_user_meta_data->>'nome', 'Usuário'), COALESCE(new.raw_user_meta_data->>'role', 'aluno'))
+  ON CONFLICT (id) DO NOTHING;
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- =======================================================
--- Inserir dados mock/iniciais para testes
+-- Inserir Escola Padrão Real (Jardim Lucélia)
 -- =======================================================
 INSERT INTO public.escolas (nome, endereco, lat, lng, raio_metros, horario_entrada, horario_saida)
 VALUES (
-  'EE Professora Maria Aparecida',
-  'Rua das Flores, 123 - São Paulo, SP',
-  -23.5505,
-  -46.6333,
+  'EE Professor Eurípedes Simões de Paula',
+  'R. Maria Pape, 30 - Jardim Lucélia',
+  -23.7613199,
+  -46.6735803,
   100,
-  '07:00',
-  '16:00'
+  '14:15',
+  '21:15'
 );
