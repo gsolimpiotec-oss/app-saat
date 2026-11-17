@@ -2,6 +2,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionGuard } from "@/components/SessionGuard";
+import { PwaRegister } from "@/components/PwaRegister";
 
 const InterSans = Inter({
   variable: "--font-Inter-sans",
@@ -9,9 +10,14 @@ const InterSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SAAT  Sistema de Acompanhamento do Aluno Trabalhador",
+  title: "SAAT - Sistema de Acompanhamento do Aluno Trabalhador",
   description: "Acompanhe seu desempenho escolar e concilie trabalho e estudo.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SAAT",
+  },
 };
 
 export const viewport: Viewport = {
@@ -24,8 +30,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${InterSans.variable} h-full`}>
+      <head>
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
       <body className="min-h-full bg-slate-200 md:bg-slate-200">
         <SessionGuard />
+        <PwaRegister />
         {children}
       </body>
     </html>
