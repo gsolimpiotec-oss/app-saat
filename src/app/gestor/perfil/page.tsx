@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { GestorBottomNav } from "@/components/GestorBottomNav";
+import { LogoutHeaderButton } from "@/components/LogoutHeaderButton";
 import { createClient } from "@/lib/supabase/client";
 
 export default function PerfilGestorPage() {
@@ -38,7 +39,7 @@ export default function PerfilGestorPage() {
   return (
     <div className="app-shell min-h-screen bg-slate-50">
       <header className="px-4 py-4 border-b border-slate-100 bg-white sticky top-0">
-        <h1 className="font-semibold text-slate-800">Perfil</h1>
+        <div className="flex items-center justify-between"><h1 className="font-semibold text-slate-800">Perfil</h1><LogoutHeaderButton /></div>
       </header>
       
       <div className="px-4 py-6 flex flex-col gap-5 pb-24">

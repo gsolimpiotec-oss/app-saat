@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { GestorBottomNav } from "@/components/GestorBottomNav";
+import { LogoutHeaderButton } from "@/components/LogoutHeaderButton";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 

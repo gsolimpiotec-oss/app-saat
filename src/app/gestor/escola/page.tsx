@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { MapPin, Loader2, CheckCircle, SlidersHorizontal, ChevronRight } from "lucide-react";
 import { GestorBottomNav } from "@/components/GestorBottomNav";
+import { LogoutHeaderButton } from "@/components/LogoutHeaderButton";
 import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 
@@ -120,6 +121,7 @@ export default function EscolaCadastroPage() {
             <ChevronRight size={24} className="text-slate-600 rotate-180" />
           </Link>
           <h1 className="font-semibold text-slate-800">Configuração da Escola</h1>
+        <LogoutHeaderButton />
         </div>
       </header>
 
